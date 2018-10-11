@@ -2,13 +2,13 @@
  * React Native Map Link
  */
 
-import { Platform, Alert, ActionSheetIOS, Linking } from 'react-native'
+import { Platform } from 'react-native'
 
 export const isIOS = Platform.OS === 'ios'
 
 export const prefixes = {
   'apple-maps': isIOS ? 'http://maps.apple.com/' : 'applemaps://',
-  'google-maps': isIOS ? 'comgooglemaps://' : 'https://maps.google.com/',
+  'google-maps': 'https://www.google.com/maps/',
   'citymapper': 'citymapper://',
   'uber': 'uber://',
   'lyft': 'lyft://',

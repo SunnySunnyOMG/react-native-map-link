@@ -2,7 +2,7 @@
  * React Native Map Link
  */
 
-import { Platform, Alert, ActionSheetIOS, Linking } from 'react-native'
+import { Linking } from 'react-native'
 
 import { prefixes, isIOS } from './constants'
 import { askAppChoice, checkOptions } from './utils'
@@ -52,6 +52,8 @@ export async function showLocation (options) {
   let dialogMessage = options.dialogMessage && options.dialogMessage.length ? options.dialogMessage : 'What app would you like to use?'
   let cancelText = options.cancelText && options.cancelText.length ? options.cancelText : 'Cancel'
   let appsWhiteList = options.appsWhiteList && options.appsWhiteList.length ? options.appsWhiteList : null
+  const destination_place_id = options.destinationPlaceId
+  const travelmode = options.travelMode
 
   if (!app) {
     app = await askAppChoice({
@@ -68,16 +70,22 @@ export async function showLocation (options) {
     case 'apple-maps':
       url = prefixes['apple-maps']
       url = (useSourceDestiny) ? `${url}?saddr=${sourceLatLng}&daddr=${latlng}` : `${url}?ll=${latlng}`
-      url += `&q=${title ? `${encodedTitle}&address=${encodedTitle}` : 'Location'}`
+      url += `&q=${title ? encodedTitle : 'Location'}`
       break
     case 'google-maps':
       let useTitleForQuery = !options.googleForceLatLon && title
       let googlePlaceId = options.googlePlaceId ? options.googlePlaceId : null
-
       url = prefixes['google-maps']
-      url += `?q=${useTitleForQuery ? encodedTitle : latlng}`
-      url += (isIOS) ? '&api=1' : ''
-      url += (googlePlaceId) ? `&query_place_id=${googlePlaceId}` : ''
+      if(useSourceDestiny){
+        url += `dir/?api=1&origin=${latlng}`
+        url += (googlePlaceId) ? `&origin_place_id=${googlePlaceId}` : ''
+        url += `&destination=${sourceLatLng}`
+        url += destination_place_id ? `&destination_place_id=${destination_place_id}` : ''
+        url += travelmode ? `&travelmode=${travelmode}` : ''
+      }else{
+        url += `search/?api=1&query=${useTitleForQuery && googlePlaceId ? encodedTitle : latlng}`
+        url += (googlePlaceId) ? `&query_place_id=${googlePlaceId}` : ''
+      }
       url += (useSourceDestiny) ? `&saddr=${sourceLatLng}&daddr=${latlng}` : `&ll=${latlng}`
       break
     case 'citymapper':
